@@ -92,10 +92,10 @@ handleEvents()
 				stage.bspdy=1;
 				break;
 			case SDLK_UP:
-				stage.py+=(stage.py!=0)?-10:0;
+				stage.py += (stage.py != 0) ? -10:0;
 				break;
 			case SDLK_DOWN:
-				stage.py+=(stage.py!=SCREEN_HEIGHT - stage.ph)?10:0;
+				stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) ? 10 : 0;
 				break;
 			default:
 				break;
@@ -119,17 +119,17 @@ draw()
 	SDL_RenderDrawLine(game.r, SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT);
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
-	SDL_Rect fillRectL = { stage.px, stage.py, stage.pw, stage.ph };
-	SDL_RenderFillRect( game.r, &fillRectL );
+	SDL_Rect paddleL = {stage.px, stage.py, stage.pw, stage.ph};
+	SDL_RenderFillRect(game.r, &paddleL);
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
-	SDL_Rect fillRectR = { SCREEN_WIDTH - stage.px - stage.pw, stage.oy, stage.pw, stage.ph };
-	SDL_RenderFillRect( game.r, &fillRectR );
+	SDL_Rect paddleR = {SCREEN_WIDTH - stage.px - stage.pw, stage.oy, stage.pw, stage.ph};
+	SDL_RenderFillRect(game.r, &paddleR);
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
-	SDL_Rect fillRectP = { stage.bx, stage.by, stage.bs, stage.bs };
-	SDL_RenderFillRect( game.r, &fillRectP );
-	
+	SDL_Rect ball = {stage.bx, stage.by, stage.bs, stage.bs};
+	SDL_RenderFillRect(game.r, &ball);
+
 	stage.by+=stage.bspdy;
 	stage.bspdy=(stage.by<=0 || stage.by>=SCREEN_HEIGHT - stage.bs)?-stage.bspdy:stage.bspdy;
 
@@ -138,6 +138,7 @@ draw()
 	stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by && stage.by<=stage.py+stage.ph || 
 			stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.py<=stage.oy && stage.by<=stage.oy+stage.ph
 			)?-stage.bspdx:stage.bspdx;
+
 
 	SDL_RenderPresent(game.r);
 }
