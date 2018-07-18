@@ -8,7 +8,8 @@ typedef struct {
 	SDL_Renderer *r;
 
 	SDL_Event e;
-	SDL_Rect rct;
+
+	int quit;
 } Game;
 
 Game game;
@@ -44,6 +45,8 @@ init()
 	game.w = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	game.r = SDL_CreateRenderer(game.w, -1, SDL_RENDERER_ACCELERATED);
 
+	game.quit = 0;
+
 	resetStage();
 }
 
@@ -64,15 +67,30 @@ resetStage()
 void
 run()
 {
-	int quit = 0;
-	while (!quit) {
-		while (SDL_PollEvent(&game.e)) {
-			if (game.e.type == SDL_QUIT) {
-				quit = 1;
-			}
-		}
+	while (!game.quit) {
+		handleEvents();
 		update();
 		draw();
+	}
+}
+
+void
+handleEvents()
+{
+	while (SDL_PollEvent(&game.e)) {
+		if (game.e.type == SDL_QUIT) {
+			game.quit = 1;
+		}
+
+		if (game.e.type == SDL_KEYDOWN) {
+			switch (game.e.key.keysym.sym) {
+			case SDLK_r:
+				resetStage();
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
 
@@ -86,6 +104,10 @@ draw()
 {
 	SDL_SetRenderDrawColor(game.r, 0x28, 0x28, 0x28, 0xff);
 	SDL_RenderClear(game.r);
+
+	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
+	SDL_RenderDrawLine(game.r, SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT);
+
 	SDL_RenderPresent(game.r);
 }
 
