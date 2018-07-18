@@ -87,6 +87,12 @@ handleEvents()
 			case SDLK_r:
 				resetStage();
 				break;
+			case SDLK_UP:
+				stage.py+=(stage.py!=0)?-10:0;
+				break;
+			case SDLK_DOWN:
+				stage.py+=(stage.py!=SCREEN_HEIGHT - stage.ph)?10:0;
+				break;
 			default:
 				break;
 			}
@@ -107,6 +113,18 @@ draw()
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
 	SDL_RenderDrawLine(game.r, SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT);
+
+	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
+	SDL_Rect fillRectL = { stage.px, stage.py, stage.pw, stage.ph };
+	SDL_RenderFillRect( game.r, &fillRectL );
+
+	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
+	SDL_Rect fillRectR = { SCREEN_WIDTH - stage.px - stage.pw, stage.oy, stage.pw, stage.ph };
+	SDL_RenderFillRect( game.r, &fillRectR );
+
+	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
+	SDL_Rect fillRectP = { stage.bx, stage.by, stage.bs, stage.bs };
+	SDL_RenderFillRect( game.r, &fillRectP );
 
 	SDL_RenderPresent(game.r);
 }
