@@ -113,8 +113,8 @@ update()
 	stage.bspdy=(stage.by<=0 || stage.by>=SCREEN_HEIGHT - stage.bs)?-stage.bspdy:stage.bspdy;
 
 	stage.bx+=stage.bspdx;
-	stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by && stage.by<=stage.py+stage.ph || 
-			stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.py<=stage.oy && stage.by<=stage.oy+stage.ph
+	stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
+			stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.oy<=stage.by + stage.bs && stage.by<=stage.oy+stage.ph
 			)?-stage.bspdx:stage.bspdx;
 }
 
