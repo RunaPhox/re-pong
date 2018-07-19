@@ -1,37 +1,54 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include <SDL2/SDL.h>
 
+/* window resolution */
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+/* game independent logic and resources */
 typedef struct {
 	SDL_Window *w;
 	SDL_Renderer *r;
 
+	/* for all the in-game events */
 	SDL_Event e;
 
+	/* delta time for consistent execution speed */
 	unsigned int newTick, oldTick;
 
 	int quit;
 } Game;
-
 Game game;
 
+/* game dependent assets */
 typedef struct {
+	/* ball's size and coordinates */
 	int bs, bx, by;
+
+	/* ball's x and y direction speeds */
 	float bspdx, bspdy;
 
-	int px, py, pw, ph, oy;
+	/* paddle's width, height, x and y position */
+	int px, py, pw, ph;
 
+	/* opponent's paddle y coordinate */
+	int oy;
+
+	/* movement toggle */
 	int mup, mdown;
 } Stage;
-
 Stage stage;
 
+/* basic debug mode controller */
 typedef struct {
+	/* debug square size and x coordinate */
 	int ss, sx;
+
+	/* for toggling of debug functionality */
 	int toggleDraw;
 } Debug;
-
 Debug debug;
 
 /* initialization */
@@ -51,9 +68,22 @@ static void close();
 void
 init()
 {
-	SDL_Init(SDL_INIT_VIDEO);
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		fprintf(stderr, "could not initialize SDL. SDL Error: %s", SDL_GetError());
+		exit(1);
+	}
+
 	game.w = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+	if (!game.w) {
+		fprintf(stderr, "could not create window. SDL Error: %s", SDL_GetError());
+		exit(1);
+	}
+
 	game.r = SDL_CreateRenderer(game.w, -1, SDL_RENDERER_ACCELERATED);
+	if (!game.r) {
+		fprintf(stderr, "could not create renderer. SDL Error: %s", SDL_GetError());
+		exit(1);
+	}
 
 	game.oldTick = game.newTick = 0;
 	game.quit = 0;
@@ -71,20 +101,32 @@ prepareDebug()
 void
 resetStage()
 {
+	/* ball size */
 	stage.bs = 30;
-	stage.bx = SCREEN_WIDTH/2 - stage.bs/2; stage.by = SCREEN_HEIGHT/2 - stage.bs/2;
 
+	/* middle y coordinate for the ball */
+	stage.bx = SCREEN_WIDTH/2 - stage.bs/2;
+	/* middle x coordinate for the ball */
+	stage.by = SCREEN_HEIGHT/2 - stage.bs/2;
+
+	/* no speed at start */
 	stage.bspdx = stage.bspdy = 0;
 
-	stage.pw = 15; stage.ph = 100;
-	stage.px = 20; stage.py = stage.oy = SCREEN_HEIGHT/2 - stage.ph/2;
+	stage.pw = 15;
+	stage.ph = 100;
+	stage.px = 20;
 
+	/* middle y coordinate for the paddles */
+	stage.py = stage.oy = SCREEN_HEIGHT/2 - stage.ph/2;
+
+	/* the user has not iniciated movement */
 	stage.mup = stage.mdown = 0;
 }
 
 void
 run()
 {
+	/* game loop */
 	while (!game.quit) {
 		handleEvents();
 		update();
@@ -96,10 +138,12 @@ void
 handleEvents()
 {
 	while (SDL_PollEvent(&game.e)) {
+		/* user wants to close the window */
 		if (game.e.type == SDL_QUIT) {
 			game.quit = 1;
 		}
 
+		/* user presses a key */
 		if (game.e.type == SDL_KEYDOWN) {
 			switch (game.e.key.keysym.sym) {
 			case SDLK_d:
@@ -123,6 +167,7 @@ handleEvents()
 			}
 		}
 
+		/* user releases a key */
 		if (game.e.type == SDL_KEYUP) {
 			switch (game.e.key.keysym.sym) {
 			case SDLK_UP:
