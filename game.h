@@ -156,8 +156,8 @@ update()
 		}
 
 		stage.bx+=stage.bspdx;
-		stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
-				stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.oy<=stage.by + stage.bs && stage.by<=stage.oy+stage.ph
+		stage.bspdx=   (stage.bx>=stage.px + stage.pw/2 && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
+				stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs - stage.pw/2 && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.oy<=stage.by + stage.bs && stage.by<=stage.oy+stage.ph
 				)?-stage.bspdx:stage.bspdx;
 		game.oldTick=game.newTick;
 	}
