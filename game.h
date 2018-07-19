@@ -181,6 +181,8 @@ draw()
 
 		SDL_RenderDrawLine(game.r, ds.x, 0, ds.x + ds.w, ds.h);
 		SDL_RenderDrawLine(game.r, ds.x + ds.w, 0, ds.x, ds.h);
+
+		SDL_RenderDrawLine(game.r, 0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2);
 	}
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
