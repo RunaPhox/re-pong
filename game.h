@@ -183,6 +183,12 @@ draw()
 		SDL_RenderDrawLine(game.r, ds.x + ds.w, 0, ds.x, ds.h);
 
 		SDL_RenderDrawLine(game.r, 0, SCREEN_HEIGHT/2, SCREEN_WIDTH, SCREEN_HEIGHT/2);
+
+		int ballheight = stage.by + stage.bs/2;
+		if (ballheight >= stage.oy && ballheight <= stage.oy + stage.ph) {
+			SDL_SetRenderDrawColor(game.r, 0x00, 0x00, 0xff, 0xff);
+			SDL_RenderDrawLine(game.r, 0, ballheight, SCREEN_WIDTH, ballheight);
+		}
 	}
 
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
