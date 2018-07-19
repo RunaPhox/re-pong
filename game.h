@@ -47,7 +47,7 @@ init()
 	game.w = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	game.r = SDL_CreateRenderer(game.w, -1, SDL_RENDERER_ACCELERATED);
 
-	game.oldTick = 0;
+	game.oldTick = game.newTick = 0;
 	game.quit = 0;
 
 	resetStage();
@@ -125,7 +125,6 @@ update()
 {
 	game.newTick = SDL_GetTicks();
 	if (game.newTick > game.oldTick + 50) {
-
 		stage.py += (stage.py != 0) && stage.mup ? -10:0;
 		stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) && stage.mdown ? 10 : 0;
 
@@ -133,6 +132,10 @@ update()
 
 		stage.by+=stage.bspdy;
 		stage.bspdy=(stage.by<=0 || stage.by>=SCREEN_HEIGHT - stage.bs)?-stage.bspdy:stage.bspdy;
+
+		if (stage.bx <= 0 || stage.bx + stage.bs >= SCREEN_WIDTH) {
+			resetStage();
+		}
 
 		stage.bx+=stage.bspdx;
 		stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
