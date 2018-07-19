@@ -9,6 +9,8 @@ typedef struct {
 
 	SDL_Event e;
 
+	unsigned int newTick, oldTick;
+
 	int quit;
 } Game;
 
@@ -45,6 +47,7 @@ init()
 	game.w = SDL_CreateWindow("Title", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	game.r = SDL_CreateRenderer(game.w, -1, SDL_RENDERER_ACCELERATED);
 
+	game.oldTick = 0;
 	game.quit = 0;
 
 	resetStage();
@@ -88,8 +91,8 @@ handleEvents()
 				resetStage();
 				break;
 			case SDLK_SPACE:
-				stage.bspdx=-1;
-				stage.bspdy=1;
+				stage.bspdx=-10;
+				stage.bspdy=10;
 				break;
 			case SDLK_UP:
 				stage.py += (stage.py != 0) ? -10:0;
@@ -107,15 +110,19 @@ handleEvents()
 void
 update()
 {
-	stage.oy=(stage.by<SCREEN_HEIGHT - stage.ph)?stage.by:stage.oy;
+	game.newTick = SDL_GetTicks();
+	if (game.newTick > game.oldTick + 50) {
+		stage.oy=(stage.by<SCREEN_HEIGHT - stage.ph)?stage.by :stage.oy;
 
-	stage.by+=stage.bspdy;
-	stage.bspdy=(stage.by<=0 || stage.by>=SCREEN_HEIGHT - stage.bs)?-stage.bspdy:stage.bspdy;
+		stage.by+=stage.bspdy;
+		stage.bspdy=(stage.by<=0 || stage.by>=SCREEN_HEIGHT - stage.bs)?-stage.bspdy:stage.bspdy;
 
-	stage.bx+=stage.bspdx;
-	stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
-			stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.oy<=stage.by + stage.bs && stage.by<=stage.oy+stage.ph
-			)?-stage.bspdx:stage.bspdx;
+		stage.bx+=stage.bspdx;
+		stage.bspdx=   (stage.bx>=stage.px && stage.bx<=stage.pw + stage.px && stage.py<=stage.by + stage.bs && stage.by<=stage.py+stage.ph || 
+				stage.bx>=SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.bx<=stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && stage.oy<=stage.by + stage.bs && stage.by<=stage.oy+stage.ph
+				)?-stage.bspdx:stage.bspdx;
+		game.oldTick=game.newTick;
+	}
 }
 
 void
