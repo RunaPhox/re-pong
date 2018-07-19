@@ -95,10 +95,23 @@ handleEvents()
 				stage.bspdy=10;
 				break;
 			case SDLK_UP:
-				stage.py += (stage.py != 0) ? -10:0;
+				stage.mup = 1;
 				break;
 			case SDLK_DOWN:
-				stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) ? 10 : 0;
+				stage.mdown = 1;
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (game.e.type == SDL_KEYUP) {
+			switch (game.e.key.keysym.sym) {
+			case SDLK_UP:
+				stage.mup = 0;
+				break;
+			case SDLK_DOWN:
+				stage.mdown = 0;
 				break;
 			default:
 				break;
@@ -112,6 +125,10 @@ update()
 {
 	game.newTick = SDL_GetTicks();
 	if (game.newTick > game.oldTick + 50) {
+
+		stage.py += (stage.py != 0) && stage.mup ? -10:0;
+		stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) && stage.mdown ? 10 : 0;
+
 		stage.oy=(stage.by<SCREEN_HEIGHT - stage.ph)?stage.by :stage.oy;
 
 		stage.by+=stage.bspdy;
