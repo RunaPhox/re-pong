@@ -27,8 +27,16 @@ typedef struct {
 
 Stage stage;
 
+typedef struct {
+	int ss, sx;
+	int toggleDraw;
+} Debug;
+
+Debug debug;
+
 /* initialization */
 void init();
+void prepareDebug();
 void resetStage();
 
 /* game loop */
@@ -50,7 +58,14 @@ init()
 	game.oldTick = game.newTick = 0;
 	game.quit = 0;
 
+	prepareDebug();
 	resetStage();
+}
+
+void
+prepareDebug()
+{
+	debug.toggleDraw = debug.ss = debug.sx = 0;
 }
 
 void
@@ -87,6 +102,9 @@ handleEvents()
 
 		if (game.e.type == SDL_KEYDOWN) {
 			switch (game.e.key.keysym.sym) {
+			case SDLK_d:
+				debug.toggleDraw = debug.toggleDraw ? 0 : 1;
+				break;
 			case SDLK_r:
 				resetStage();
 				break;
@@ -151,18 +169,29 @@ draw()
 	SDL_SetRenderDrawColor(game.r, 0x28, 0x28, 0x28, 0xff);
 	SDL_RenderClear(game.r);
 
+	if (debug.toggleDraw) {
+		SDL_SetRenderDrawColor(game.r, 0xff, 0xff, 0xff, 0xff);
+		SDL_Rect ds;
+
+		ds.x = (SCREEN_WIDTH - SCREEN_HEIGHT) / 2;
+		ds.y = 0;
+		ds.w = ds.h = SCREEN_HEIGHT;
+
+		SDL_RenderDrawRect(game.r, &ds);
+
+		SDL_RenderDrawLine(game.r, ds.x, 0, ds.x + ds.w, ds.h);
+		SDL_RenderDrawLine(game.r, ds.x + ds.w, 0, ds.x, ds.h);
+	}
+
 	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
 	SDL_RenderDrawLine(game.r, SCREEN_WIDTH/2, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT);
 
-	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
 	SDL_Rect paddleL = {stage.px, stage.py, stage.pw, stage.ph};
 	SDL_RenderFillRect(game.r, &paddleL);
 
-	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
 	SDL_Rect paddleR = {SCREEN_WIDTH - stage.px - stage.pw, stage.oy, stage.pw, stage.ph};
 	SDL_RenderFillRect(game.r, &paddleR);
 
-	SDL_SetRenderDrawColor(game.r, 0xee, 0xee, 0xee, 0xff);
 	SDL_Rect ball = {stage.bx, stage.by, stage.bs, stage.bs};
 	SDL_RenderFillRect(game.r, &ball);
 
