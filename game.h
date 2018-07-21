@@ -194,7 +194,7 @@ void
 update()
 {
 	/* movement boundaries */
-	stage.py += (stage.py != 0) && stage.mup ? -10: 0;
+	stage.py += (stage.py != 0) && stage.mup? -10: 0;
 	stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) && stage.mdown? 10: 0;
 
 	/* CPU opponent */
@@ -213,7 +213,7 @@ update()
 		       !(stage.bx > stage.px + stage.pw -10) && /* start x limit interval */
 		       !(stage.bx + stage.bs < stage.px) &&     /* finish x limit interval */
 		              (/* left paddle top limit */
-			       stage.by + stage.bs >= stage.py  &&    /* start y limit interval */
+			       stage.by + stage.bs >= stage.py &&     /* start y limit interval */
 			       stage.by + stage.bs <= stage.py +10 || /* finish y limit interval */
 			       /* left paddle bottom limit */
 			       stage.by <= stage.py + stage.ph &&  /* start y limit interval */
@@ -237,13 +237,13 @@ update()
 	stage.bspdx = (/* left paddle limit */
 		       stage.bx >= stage.px + stage.pw -10 && /* start x limit interval */
 		       stage.bx <= stage.px + stage.pw &&     /* finish x limit interval */
-		       !(stage.by > stage.py + stage.ph) &&   /* start y limit interval */
-		       !(stage.by + stage.bs < stage.py) ||   /* finish y limit interval */
+		       stage.by <= stage.py + stage.ph +5 &&     /* start y limit interval */
+		       stage.by + stage.bs >= stage.py -5 ||     /* finish y limit interval */
 		       /* rigth paddle limit */
 		       stage.bx + stage.bs >= SCREEN_WIDTH - stage.px - stage.pw &&     /* start x limit interval */
 		       stage.bx + stage.bs <= SCREEN_WIDTH - stage.px - stage.pw +10 && /* finish x limit interval */
-		       !(stage.by > stage.oy + stage.ph) && /* start y limit interval */
-		       !(stage.by + stage.bs < stage.oy)    /* finish y limit interval */
+		       stage.by <= stage.oy + stage.ph +5 && /* start y limit interval */
+		       stage.by + stage.bs >= stage.oy -5    /* finish y limit interval */
 		      )
 		      ?-stage.bspdx: stage.bspdx;
 }
