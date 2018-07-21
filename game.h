@@ -7,6 +7,9 @@
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
 
+/* frames per second */
+#define FPS 30
+
 /* game independent logic and resources */
 typedef struct {
 	SDL_Window *w;
@@ -16,7 +19,7 @@ typedef struct {
 	SDL_Event e;
 
 	/* delta time for consistent execution speed */
-	unsigned int newTick, oldTick;
+	unsigned int frameTicks;
 
 	int quit;
 } Game;
@@ -85,7 +88,7 @@ init()
 		exit(1);
 	}
 
-	game.oldTick = game.newTick = 0;
+	game.frameTicks = 0;
 	game.quit = 0;
 
 	prepareDebug();
@@ -128,9 +131,13 @@ run()
 {
 	/* game loop */
 	while (!game.quit) {
+		game.frameTicks = SDL_GetTicks();
 		handleEvents();
 		update();
 		draw();
+		if (SDL_GetTicks() - game.frameTicks < 1000 / FPS) {
+			SDL_Delay((1000 / FPS) - (SDL_GetTicks() - game.frameTicks));
+		}
 	}
 }
 
@@ -186,67 +193,59 @@ handleEvents()
 void
 update()
 {
-	/* games tick system */
-	game.newTick = SDL_GetTicks();
-	if (game.newTick > game.oldTick + 50) {
+	/* movement boundaries */
+	stage.py += (stage.py != 0) && stage.mup ? -10: 0;
+	stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) && stage.mdown? 10: 0;
 
-		/* movement boundaries */
-		stage.py += (stage.py != 0) && stage.mup ? -10: 0;
-		stage.py += (stage.py != SCREEN_HEIGHT - stage.ph) && stage.mdown? 10: 0;
+	/* CPU opponent */
+	stage.oy = (stage.by < SCREEN_HEIGHT - stage.ph/2 - stage.bs/2 && stage.by > stage.ph/2 - stage.bs/2)? stage.by + stage.bs/2 - stage.ph/2: stage.oy;
 
-		/* CPU opponent */
-		stage.oy = (stage.by < SCREEN_HEIGHT - stage.ph/2 - stage.bs/2 && stage.by > stage.ph/2 - stage.bs/2)? stage.by + stage.bs/2 - stage.ph/2: stage.oy;
-
-		/* reset when the ball pass any paddle */
-		if (stage.bx <= 0 || stage.bx + stage.bs >= SCREEN_WIDTH) {
-			resetStage();
-		}
-
-		/* ball reflection by velocity on the y axis */
-		stage.by += stage.bspdy;
-		stage.bspdy = (stage.by <= 0 || /* top limit */
-			       stage.by >= SCREEN_HEIGHT - stage.bs || /* bottom limit */
-			       /* left paddle limit */
-			       !(stage.bx > stage.px + stage.pw -10) && /* start x limit interval */
-			       !(stage.bx + stage.bs < stage.px) &&     /* finish x limit interval */
-			              (/* left paddle top limit */
-				       stage.by + stage.bs >= stage.py  &&    /* start y limit interval */
-				       stage.by + stage.bs <= stage.py +10 || /* finish y limit interval */
-				       /* left paddle bottom limit */
-				       stage.by <= stage.py + stage.ph &&  /* start y limit interval */
-				       stage.by >= stage.py + stage.ph -10 /* finish y limit interval */
-				      ) ||
-			       /* rigth paddle limit */
-			       !(stage.bx > SCREEN_WIDTH - stage.px) && /* start x limit interval */
-			       !(stage.bx + stage.bs < SCREEN_WIDTH - stage.px - stage.pw +10) && /* finish x limit interval */
-			              (/* rigth paddle top limit */
-				       stage.by + stage.bs >= stage.oy  &&    /* start y limit interval */
-				       stage.by + stage.bs <= stage.oy +10 || /* finish y limit interval */
-				       /* rigth paddle bottom limit */
-				       stage.by <= stage.oy + stage.ph &&  /* start y limit interval */
-				       stage.by >= stage.oy + stage.ph -10 /* finish y limit interval */
-				      )			     
-			      )
-			      ?-stage.bspdy: stage.bspdy;
-
-		/* ball reflection by velocity on the x axis */
-		stage.bx += stage.bspdx;
-		stage.bspdx = (/* left paddle limit */
-			       stage.bx >= stage.px + stage.pw -10 && /* start x limit interval */
-			       stage.bx <= stage.px + stage.pw &&     /* finish x limit interval */
-			       !(stage.by > stage.py + stage.ph) &&   /* start y limit interval */
-			       !(stage.by + stage.bs < stage.py) ||   /* finish y limit interval */
-			       /* rigth paddle limit */
-			       stage.bx + stage.bs >= SCREEN_WIDTH - stage.px - stage.pw &&     /* start x limit interval */
-			       stage.bx + stage.bs <= SCREEN_WIDTH - stage.px - stage.pw +10 && /* finish x limit interval */
-			       !(stage.by > stage.oy + stage.ph) && /* start y limit interval */
-			       !(stage.by + stage.bs < stage.oy)    /* finish y limit interval */
-			      )
-			      ?-stage.bspdx: stage.bspdx;
-		
-		/* oldtick refresh */
-		game.oldTick=game.newTick;
+	/* reset when the ball pass any paddle */
+	if (stage.bx <= 0 || stage.bx + stage.bs >= SCREEN_WIDTH) {
+		resetStage();
 	}
+
+	/* ball reflection by velocity on the y axis */
+	stage.by += stage.bspdy;
+	stage.bspdy = (stage.by <= 0 || /* top limit */
+		       stage.by >= SCREEN_HEIGHT - stage.bs || /* bottom limit */
+		       /* left paddle limit */
+		       !(stage.bx > stage.px + stage.pw -10) && /* start x limit interval */
+		       !(stage.bx + stage.bs < stage.px) &&     /* finish x limit interval */
+		              (/* left paddle top limit */
+			       stage.by + stage.bs >= stage.py  &&    /* start y limit interval */
+			       stage.by + stage.bs <= stage.py +10 || /* finish y limit interval */
+			       /* left paddle bottom limit */
+			       stage.by <= stage.py + stage.ph &&  /* start y limit interval */
+			       stage.by >= stage.py + stage.ph -10 /* finish y limit interval */
+			      ) ||
+		       /* rigth paddle limit */
+		       !(stage.bx > SCREEN_WIDTH - stage.px) && /* start x limit interval */
+		       !(stage.bx + stage.bs < SCREEN_WIDTH - stage.px - stage.pw +10) && /* finish x limit interval */
+		              (/* rigth paddle top limit */
+			       stage.by + stage.bs >= stage.oy  &&    /* start y limit interval */
+			       stage.by + stage.bs <= stage.oy +10 || /* finish y limit interval */
+			       /* rigth paddle bottom limit */
+			       stage.by <= stage.oy + stage.ph &&  /* start y limit interval */
+			       stage.by >= stage.oy + stage.ph -10 /* finish y limit interval */
+			      )			     
+		      )
+		      ?-stage.bspdy: stage.bspdy;
+
+	/* ball reflection by velocity on the x axis */
+	stage.bx += stage.bspdx;
+	stage.bspdx = (/* left paddle limit */
+		       stage.bx >= stage.px + stage.pw -10 && /* start x limit interval */
+		       stage.bx <= stage.px + stage.pw &&     /* finish x limit interval */
+		       !(stage.by > stage.py + stage.ph) &&   /* start y limit interval */
+		       !(stage.by + stage.bs < stage.py) ||   /* finish y limit interval */
+		       /* rigth paddle limit */
+		       stage.bx + stage.bs >= SCREEN_WIDTH - stage.px - stage.pw &&     /* start x limit interval */
+		       stage.bx + stage.bs <= SCREEN_WIDTH - stage.px - stage.pw +10 && /* finish x limit interval */
+		       !(stage.by > stage.oy + stage.ph) && /* start y limit interval */
+		       !(stage.by + stage.bs < stage.oy)    /* finish y limit interval */
+		      )
+		      ?-stage.bspdx: stage.bspdx;
 }
 
 void
