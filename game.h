@@ -207,24 +207,24 @@ update()
 		stage.bspdy = (stage.by <= 0 || /* top limit */
 			       stage.by >= SCREEN_HEIGHT - stage.bs || /* bottom limit */
 			       /* left paddle limit */
-			       stage.bx >= stage.px &&            /* start x limit interval */
-			       stage.bx <= stage.pw + stage.px && /* finish x limit interval */
+			       !(stage.bx > stage.px + stage.pw -10) && /* start x limit interval */
+			       !(stage.bx + stage.bs < stage.px) &&     /* finish x limit interval */
 			              (/* left paddle top limit */
-				       stage.py <= stage.by + stage.bs &&     /* start y limit interval */
-				       stage.py >= stage.by + stage.bs  -10 || /* finish y limit interval */
+				       stage.by + stage.bs >= stage.py  &&    /* start y limit interval */
+				       stage.by + stage.bs <= stage.py +10 || /* finish y limit interval */
 				       /* left paddle bottom limit */
-				       stage.by <= stage.py + stage.ph && /* start y limit interval */
+				       stage.by <= stage.py + stage.ph &&  /* start y limit interval */
 				       stage.by >= stage.py + stage.ph -10 /* finish y limit interval */
 				      ) ||
 			       /* rigth paddle limit */
-			       stage.bx >= SCREEN_WIDTH - stage.px - stage.pw - stage.bs &&            /* start x limit interval */
-			       stage.bx <= stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs && /* finish x limit interval */
-			              (/* left paddle top limit */
-				       stage.oy <= stage.by + stage.bs &&    /* start y limit interval */
-				       stage.oy <= stage.by + stage.bs -10 || /* finish y limit interval */
-				       /* left paddle bottom limit */
-				       stage.oy <= stage.by + stage.bs &&  /* start y limit interval */
-				       stage.by <= stage.oy + stage.ph -10  /* finish y limit interval */
+			       !(stage.bx > SCREEN_WIDTH - stage.px) && /* start x limit interval */
+			       !(stage.bx + stage.bs < SCREEN_WIDTH - stage.px - stage.pw +10) && /* finish x limit interval */
+			              (/* rigth paddle top limit */
+				       stage.by + stage.bs >= stage.oy  &&    /* start y limit interval */
+				       stage.by + stage.bs <= stage.oy +10 || /* finish y limit interval */
+				       /* rigth paddle bottom limit */
+				       stage.by <= stage.oy + stage.ph &&  /* start y limit interval */
+				       stage.by >= stage.oy + stage.ph -10 /* finish y limit interval */
 				      )			     
 			      )
 			      ?-stage.bspdy: stage.bspdy;
@@ -233,14 +233,14 @@ update()
 		stage.bx += stage.bspdx;
 		stage.bspdx = (/* left paddle limit */
 			       stage.bx >= stage.px + stage.pw -10 && /* start x limit interval */
-			       stage.bx <= stage.pw + stage.px &&   /* finish x limit interval */
-			       stage.py <= stage.by + stage.bs &&   /* start y limit interval */
-			       stage.by <= stage.py + stage.ph ||   /* finish y limit interval */
+			       stage.bx <= stage.px + stage.pw &&     /* finish x limit interval */
+			       !(stage.by > stage.py + stage.ph) &&   /* start y limit interval */
+			       !(stage.by + stage.bs < stage.py) ||   /* finish y limit interval */
 			       /* rigth paddle limit */
-			       stage.bx >= SCREEN_WIDTH - stage.px - stage.pw - stage.bs - stage.pw -10 && /* start x limit interval */
-			       stage.bx <= stage.pw + SCREEN_WIDTH - stage.px - stage.pw - stage.bs &&   /* finish x limit interval */
-			       stage.oy <= stage.by + stage.bs && /* start y limit interval */
-			       stage.by <= stage.oy + stage.ph    /* finish y limit interval */
+			       stage.bx + stage.bs >= SCREEN_WIDTH - stage.px - stage.pw &&     /* start x limit interval */
+			       stage.bx + stage.bs <= SCREEN_WIDTH - stage.px - stage.pw +10 && /* finish x limit interval */
+			       !(stage.by > stage.oy + stage.ph) && /* start y limit interval */
+			       !(stage.by + stage.bs < stage.oy)    /* finish y limit interval */
 			      )
 			      ?-stage.bspdx: stage.bspdx;
 		
