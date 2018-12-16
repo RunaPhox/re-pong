@@ -5,6 +5,7 @@ main()
 {
 	init();
 	run();
+	//comment
 	close();
 
 	return 0;
